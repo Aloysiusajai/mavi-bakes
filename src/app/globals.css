@@ -1,26 +1,226 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-cream: #FFF7EE;
+  --color-pastry: #F9E5D0;
+  --color-rose: #F7D6D0;
+  --color-chocolate: #5A2F2B;
+  --color-cinnamon: #C27A2C;
+  --color-glass-bg: rgba(255, 255, 255, 0.6);
+  --color-glass-border: rgba(255, 255, 255, 0.35);
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-sparkle: sparkle 2s ease-in-out infinite;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes sparkle {
+
+    0%,
+    100% {
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }
 
+:root {
+  --background: #FFF7EE;
+  --foreground: #5A2F2B;
+}
+
 body {
-  background: var(--background);
+  background: radial-gradient(circle at 10% 10%, rgba(242,227,216,0.35), transparent), var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Bakery-specific utility classes */
+.paper {
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
+  border-radius: 18px;
+  border: 1px solid rgba(90,47,43,0.06);
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--color-pastry), var(--color-cinnamon));
+  color: var(--color-chocolate);
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 8px 30px rgba(90,47,43,0.12);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(90,47,43,0.08);
+  color: var(--color-chocolate);
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+}
+
+.card {
+  background: rgba(255,255,255,0.8);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 20px 50px rgba(90,47,43,0.08);
+}
+
+/* Helper color classes to match components that use these names */
+.text-chocolate { color: var(--color-chocolate); }
+.bg-chocolate { background: var(--color-chocolate); color: var(--color-cream); }
+.text-cream { color: var(--color-cream); }
+.bg-gold { background: var(--color-cinnamon); }
+.bg-blush { background: var(--color-rose); }
+.bg-beige { background: var(--color-pastry); }
+
+/* Gallery masonry helpers */
+.gallery-columns {
+  column-count: 1;
+  column-gap: 1.25rem;
+}
+.gallery-item { break-inside: avoid; margin-bottom: 1rem; }
+
+@media (min-width: 768px) {
+  .gallery-columns { column-count: 2; }
+}
+@media (min-width: 1024px) {
+  .gallery-columns { column-count: 3; }
+}
+
+/* Animations and micro-interactions */
+@keyframes float-up {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1 }
+  50% { transform: scale(1.06); opacity: .9 }
+  100% { transform: scale(1); opacity: 1 }
+}
+
+.whatsapp-btn {
+  animation: float-up 2.6s ease-in-out infinite, pulse 4s ease-in-out infinite;
+}
+
+.btn-primary:hover { transform: translateY(-4px) scale(1.01); }
+.btn-primary { transition: transform .24s cubic-bezier(.2,.9,.3,1); }
+.btn-secondary:hover { transform: translateY(-2px); }
+
+input[type="text"], input[type="email"], input[type="number"], input[type="date"], select {
+  transition: box-shadow .18s ease, transform .12s ease, border-color .12s ease;
+}
+input:focus, select:focus { box-shadow: 0 10px 30px rgba(90,47,43,0.06); transform: translateY(-2px); border-color: var(--color-cinnamon); }
+
+.loader {
+  width: 36px; height: 36px; border-radius: 999px; border: 4px solid rgba(0,0,0,0.06); border-top-color: var(--color-cinnamon); animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Lightbox backdrop tweak */
+.glass-dark { background: rgba(90,47,43,0.75); }
+
+/* Aesthetic utility classes */
+.glow-blob {
+  filter: blur(40px) saturate(120%);
+  mix-blend-mode: screen;
+  opacity: 0.9;
+}
+
+.neon-text {
+  color: var(--color-cream);
+  text-shadow: 0 2px 8px rgba(200, 156, 58, 0.12), 0 6px 30px rgba(200, 156, 58, 0.04);
+}
+
+.accent-ring {
+  box-shadow: 0 6px 30px rgba(212, 175, 55, 0.12), inset 0 1px 0 rgba(255,255,255,0.04);
+  border-radius: 14px;
+}
+
+.glass {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--color-glass-border);
+}
+
+.glass-dark {
+  background: rgba(62, 39, 35, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-chocolate) 0%, var(--color-gold) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-animated-gradient {
+  background: linear-gradient(120deg, var(--background) 0%, var(--color-blush) 25%, var(--color-beige) 50%, #FFF1E6 75%);
+  background-size: 300% 300%;
+  animation: gradient 20s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* small utility for subtle card hover motion */
+.card-float {
+  transition: transform 0.35s cubic-bezier(.2,.9,.3,1), box-shadow 0.35s;
+}
+.card-float:hover {
+  transform: translateY(-8px) rotate(-0.5deg) scale(1.01);
+  box-shadow: 0 25px 60px rgba(62,39,35,0.18);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-chocolate);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold);
 }
