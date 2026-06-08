@@ -4,7 +4,10 @@ import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("email") || "";
+  });
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -17,11 +20,31 @@ export default function AdminLogin() {
       return;
     }
     setLoading(true);
-    // Placeholder: replace with real admin auth request
-    await new Promise((r) => setTimeout(r, 700));
-    setLoading(false);
-    setMessage("Admin login submitted (placeholder).");
-    // router.push('/admin/dashboard');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: username, password }),
+      });
+      console.log('Admin login POST response status', res.status);
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('Admin login failed:', data);
+        setMessage(data?.error || 'Invalid email or password');
+      } else if (data?.success) {
+        console.log('Admin login success for', username, 'role:', data.role);
+        // successful login -> redirect to /admin for admins
+        if (data.role === 'admin') router.push('/admin');
+        else router.push('/profile');
+      } else {
+        setMessage(data?.error || 'Invalid email or password');
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      setMessage(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

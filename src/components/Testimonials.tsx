@@ -80,7 +80,7 @@ export default function Testimonials() {
                                 </div>
 
                                 <p className="text-2xl md:text-3xl font-serif italic mb-10 leading-relaxed">
-                                    "{testimonials[currentIndex].content}"
+                                    &ldquo;{testimonials[currentIndex].content}&rdquo;
                                 </p>
 
                                 <div className="flex items-center gap-4">

@@ -2,9 +2,20 @@
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Image from "next/image";
-import { MousePointer2, Star } from "lucide-react";
+import { Star, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import QuickViewModal from "./QuickViewModal";
 
-const cakes = [
+export type CakeItem = {
+    id: number;
+    name: string;
+    category: string;
+    price: string;
+    image: string;
+    rating: number;
+};
+
+const cakes: CakeItem[] = [
     {
         id: 1,
         name: "Classic Chocolate Royale",
@@ -55,7 +66,7 @@ const cakes = [
     },
 ];
 
-function CakeCard({ cake }: { cake: typeof cakes[0] }) {
+function CakeCard({ cake }: { cake: CakeItem }) {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
 
@@ -121,6 +132,15 @@ function CakeCard({ cake }: { cake: typeof cakes[0] }) {
                     </div>
                     <p className="text-xs text-cream/70 font-medium uppercase tracking-widest">{cake.category}</p>
                     <h3 className="text-xl font-serif font-bold group-hover:text-gold transition-colors">{cake.name}</h3>
+
+                    <div className="mt-4 flex gap-3" role="toolbar" aria-label={`Actions for ${cake.name}`}>
+                        <button type="button" className="px-3 py-2 rounded-md bg-white/10 text-cream hover:bg-white/20" aria-label={`Quick view ${cake.name}`}>
+                            Quick View
+                        </button>
+                        <button type="button" className="px-3 py-2 rounded-md bg-gold text-cream font-bold hover:opacity-95" aria-label={`Add ${cake.name} to cart`}>
+                            Add to cart
+                        </button>
+                    </div>
                 </div>
 
                 <motion.div
@@ -138,9 +158,22 @@ function CakeCard({ cake }: { cake: typeof cakes[0] }) {
 }
 
 export default function FeaturedCakes() {
+    const [selected, setSelected] = useState<CakeItem | null>(null);
+    const [open, setOpen] = useState(false);
+
+    const openQuickView = (c: CakeItem) => {
+        setSelected(c);
+        setOpen(true);
+    };
+
+    const closeQuickView = () => {
+        setSelected(null);
+        setOpen(false);
+    };
+
     return (
-        <section id="collection" className="py-24 px-6 bg-cream">
-            <div className="max-w-7xl mx-auto">
+        <section id="collection" className="py-24 bg-cream/5">
+            <div className="container">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                     <div className="max-w-2xl">
                         <h2 className="text-4xl md:text-5xl font-serif font-bold text-chocolate mb-4">
@@ -169,13 +202,17 @@ export default function FeaturedCakes() {
                             transition={{ delay: index * 0.1, duration: 0.6 }}
                             className="card"
                         >
-                            <CakeCard cake={cake} />
+                            <div onClick={() => {}}>
+                                <CakeCard cake={cake} />
+                                <div className="mt-4 flex justify-end px-2">
+                                    <button onClick={() => openQuickView(cake)} className="px-3 py-2 rounded-md btn-secondary">Quick view</button>
+                                </div>
+                            </div>
                         </motion.div>
                     ))}
                 </div>
             </div>
+            <QuickViewModal open={open} onClose={closeQuickView} item={selected} />
         </section>
     );
 }
-
-import { ArrowRight } from "lucide-react";

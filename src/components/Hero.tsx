@@ -3,39 +3,24 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
-import { useEffect, useState } from "react";
+
+const blobs = [
+    { x: "8%", y: "12%", scale: 0.72, width: "280px", height: "360px", duration: 12 },
+    { x: "72%", y: "8%", scale: 0.94, width: "430px", height: "310px", duration: 16 },
+    { x: "46%", y: "62%", scale: 0.64, width: "260px", height: "420px", duration: 14 },
+    { x: "18%", y: "76%", scale: 0.82, width: "390px", height: "260px", duration: 18 },
+    { x: "82%", y: "54%", scale: 0.58, width: "240px", height: "300px", duration: 13 },
+    { x: "58%", y: "30%", scale: 0.76, width: "340px", height: "340px", duration: 17 },
+];
+
+const sparkles = Array.from({ length: 20 }, (_, index) => ({
+    top: `${(index * 17 + 9) % 96}%`,
+    left: `${(index * 29 + 13) % 94}%`,
+    duration: 2 + (index % 5) * 0.7,
+    delay: (index % 6) * 0.45,
+}));
 
 export default function Hero() {
-    const [mounted, setMounted] = useState(false);
-    const [blobs, setBlobs] = useState<{
-        x: string;
-        y: string;
-        scale: number;
-        width: string;
-        height: string;
-    }[] | null>(null);
-    const [sparkles, setSparkles] = useState<{ top: string; left: string }[] | null>(null);
-
-    useEffect(() => {
-        setMounted(true);
-
-        // Generate deterministic random-like values on the client only
-        const b = [...Array(6)].map(() => ({
-            x: Math.random() * 100 + "%",
-            y: Math.random() * 100 + "%",
-            scale: Math.random() * 0.5 + 0.5,
-            width: Math.round(Math.random() * 400 + 200) + "px",
-            height: Math.round(Math.random() * 400 + 200) + "px",
-        }));
-        setBlobs(b);
-
-        const s = [...Array(20)].map(() => ({
-            top: Math.random() * 100 + "%",
-            left: Math.random() * 100 + "%",
-        }));
-        setSparkles(s);
-    }, []);
-
     return (
         <section
             id="home"
@@ -43,34 +28,30 @@ export default function Hero() {
         >
             {/* Floating Elements Backdrop */}
             <div className="absolute inset-0 z-0 pointer-events-none">
-                {mounted && blobs
-                    ? blobs.map((b, i) => (
+                {blobs.map((b, i) => (
                           <motion.div
                               key={i}
                               className="absolute rounded-full bg-gold/10 blur-3xl"
                               initial={{ x: b.x, y: b.y, scale: b.scale }}
                               animate={{ y: ["-20%", "20%"], x: ["-10%", "10%"] }}
-                              transition={{ duration: 10 + Math.random() * 10, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+                              transition={{ duration: b.duration, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
                               style={{ width: b.width, height: b.height }}
                           />
-                      ))
-                    : null}
+                      ))}
 
                 {/* Sugar Sparkles */}
-                {mounted && sparkles
-                    ? sparkles.map((s, i) => (
+                {sparkles.map((s, i) => (
                           <motion.div
                               key={`sparkle-${i}`}
                               className="absolute w-1 h-1 bg-gold rounded-full"
                               style={{ top: s.top, left: s.left }}
                               animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
-                              transition={{ duration: 2 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 5 }}
+                              transition={{ duration: s.duration, repeat: Infinity, delay: s.delay }}
                           />
-                      ))
-                    : null}
+                      ))}
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
+            <div className="container grid md:grid-cols-2 gap-12 items-center relative z-10">
                 <motion.div
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -84,12 +65,12 @@ export default function Hero() {
                     >
                         Handcrafted with love since 2019
                     </motion.div>
-                    <h1 className="text-5xl md:text-7xl font-serif font-bold text-chocolate leading-tight mb-6">
+                    <h1 className="hero-title text-chocolate font-serif mb-6">
                         Freshly Baked <br />
                         <span className="text-gradient">Homemade Cakes</span> <br />
                         Made with Love
                     </h1>
-                    <p className="text-lg text-chocolate/80 mb-10 max-w-lg leading-relaxed">
+                    <p className="lead mb-10">
                         Custom Cakes for Birthdays, Weddings, Anniversaries & Special Moments.
                         Experience the magic of authentic homemade flavors crafted to perfection.
                     </p>

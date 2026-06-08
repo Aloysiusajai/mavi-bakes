@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 
 export default function Page() {
   const router = useRouter();
-  // Configure admin emails here — change to match your admin accounts
-  const ADMIN_EMAILS = ["admin@domain.com"];
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("admin123");
   const [loading, setLoading] = useState(false);
@@ -19,18 +17,27 @@ export default function Page() {
       return;
     }
     setLoading(true);
-    // Placeholder: replace with real auth request
-    await new Promise((r) => setTimeout(r, 700));
-    setLoading(false);
-    const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
-    if (isAdmin) {
-      setMessage("Admin login successful — redirecting to admin panel...");
-      router.push("/admin");
-      return;
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data?.error || 'Invalid email or password');
+        return;
+      }
+      if (data.role === 'admin') {
+        router.push('/admin');
+        return;
+      }
+      router.push('/profile');
+    } catch (e: unknown) {
+      setMessage(e instanceof Error ? e.message : 'Login failed');
+    } finally {
+      setLoading(false);
     }
-
-    setMessage("User login successful — redirecting...");
-    router.push("/profile");
   };
   return (
     <main className="min-h-screen flex items-center justify-center" style={{ background: "var(--background)" }}>

@@ -1,13 +1,31 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 type Toast = { id: string; message: string };
+type OrderMessage = {
+  type?: string;
+  order?: { id?: string };
+};
+
+declare global {
+  interface Window {
+    pushSiteToast?: (message: string) => void;
+  }
+}
 
 export default function Notifications() {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  const pushToast = useCallback((message: string) => {
+    const id = String(Date.now());
+    setToasts((t) => [...t, { id, message }]);
+    window.setTimeout(() => {
+      setToasts((t) => t.filter((x) => x.id !== id));
+    }, 6000);
+  }, []);
+
   useEffect(() => {
-    function handleMessage(e: MessageEvent) {
+    function handleMessage(e: MessageEvent<OrderMessage>) {
       const data = e.data;
       if (!data || !data.type) return;
       if (data.type === "order-updated") {
@@ -25,13 +43,13 @@ export default function Notifications() {
     let bc: BroadcastChannel | null = null;
     try {
       bc = new BroadcastChannel("orders_channel");
-      bc.onmessage = handleMessage as any;
-    } catch (e) {
+      bc.onmessage = handleMessage;
+    } catch {
       // fallback to storage event
       const onStorage = (ev: StorageEvent) => {
         if (ev.key === "orders_event" && ev.newValue) {
           const d = JSON.parse(ev.newValue);
-          handleMessage({ data: d } as any);
+          handleMessage(new MessageEvent<OrderMessage>("message", { data: d }));
         }
       };
       window.addEventListener("storage", onStorage);
@@ -41,21 +59,13 @@ export default function Notifications() {
     return () => {
       if (bc) bc.close();
     };
-  }, []);
-
-  const pushToast = (message: string) => {
-    const id = String(Date.now());
-    setToasts((t) => [...t, { id, message }]);
-    setTimeout(() => {
-      setToasts((t) => t.filter((x) => x.id !== id));
-    }, 6000);
-  };
+  }, [pushToast]);
 
   // Expose a simple window method for other components to trigger toasts
   useEffect(() => {
-    (window as any).pushSiteToast = pushToast;
-    return () => { (window as any).pushSiteToast = undefined; };
-  }, []);
+    window.pushSiteToast = pushToast;
+    return () => { window.pushSiteToast = undefined; };
+  }, [pushToast]);
 
   return (
     <div className="fixed top-6 right-6 z-60 flex flex-col gap-3">

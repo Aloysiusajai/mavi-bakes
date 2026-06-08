@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Share2, Mail, Phone, Heart, Globe } from "lucide-react";
+import { Share2, Mail, Heart, Globe } from "lucide-react";
 
 export default function Footer() {
     return (
-        <footer className="bg-chocolate text-cream pt-20 pb-10 px-6">
-            <div className="max-w-7xl mx-auto">
+        <footer className="text-cream pt-20 pb-10">
+            <div className="container">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
                     <div className="space-y-6">
@@ -60,12 +60,18 @@ export default function Footer() {
                     <div>
                         <h4 className="font-bold text-lg mb-6">Newsletter</h4>
                         <p className="text-cream/60 mb-6 text-sm">Subscribe to get the latest deals and new arrivals.</p>
-                        <form className="space-y-3">
+                        <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); /* TODO: wire subscription */ }}>
+                            <label htmlFor="newsletter-email" className="sr-only">Email address</label>
                             <input
+                                id="newsletter-email"
+                                name="email"
+                                type="email"
+                                required
                                 className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-gold outline-none"
                                 placeholder="Your email"
+                                aria-label="Your email"
                             />
-                            <button className="w-full bg-gold text-cream py-4 rounded-xl font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all">
+                            <button type="submit" className="w-full bg-gold text-cream py-4 rounded-xl font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all">
                                 Subscribe
                             </button>
                         </form>

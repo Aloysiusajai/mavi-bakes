@@ -103,7 +103,7 @@ export default function AboutUs() {
                             What started in a small home kitchen with a single whisk and a mountain of flour has grown into a destination for cake lovers. Our passion lies in the art of traditional baking, where every ingredient is handpicked and every recipe is perfected over time.
                         </p>
                         <p className="text-chocolate/80 text-lg leading-relaxed mb-10">
-                            We believe that cakes are more than just dessert—they are central to life's most precious celebrations. That's why we pour our heart into every swirl of frosting and every layer of sponge.
+                            We believe that cakes are more than just dessert—they are central to life&apos;s most precious celebrations. That&apos;s why we pour our heart into every swirl of frosting and every layer of sponge.
                         </p>
 
                         <div className="grid grid-cols-2 gap-8">

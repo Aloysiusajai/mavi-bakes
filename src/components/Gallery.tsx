@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ZoomIn } from "lucide-react";
@@ -22,13 +22,13 @@ export default function Gallery() {
     const filteredImages = filter === "All" ? galleryImages : galleryImages.filter(g => g.category === filter);
 
     return (
-        <section id="gallery" className="py-24 px-6 bg-cream/30">
-            <div className="max-w-7xl mx-auto">
+        <section id="gallery" className="py-24 bg-cream/5">
+            <div className="container">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-serif font-bold text-chocolate mb-4">
                         Our <span className="text-gold italic">Gallery</span>
                     </h2>
-                    <p className="text-chocolate/60 max-w-xl mx-auto">
+                    <p className="text-chocolate/60 max-w-xl mx-auto lead">
                         A visual feast of our most beloved creations. Each slice tells a story of
                         meticulous craftsmanship and sweet inspiration.
                     </p>
@@ -66,7 +66,7 @@ export default function Gallery() {
                     ))}
                 </div>
             </div>
-
+            
             <AnimatePresence>
                 {selectedIndex !== null && (
                     <LightboxWrapper
@@ -82,25 +82,17 @@ export default function Gallery() {
 }
 
 function LightboxWrapper({ images, index, onClose, onChangeIndex }: { images: typeof galleryImages, index: number, onClose: () => void, onChangeIndex: (i: number) => void }) {
-    // Manage keyboard navigation
-    const handleKey = (e: KeyboardEvent) => {
-        if (e.key === "Escape") onClose();
-        if (e.key === "ArrowRight") onChangeIndex(Math.min(images.length - 1, index + 1));
-        if (e.key === "ArrowLeft") onChangeIndex(Math.max(0, index - 1));
-    };
+    // Manage keyboard navigation with proper effect and cleanup
+    useEffect(() => {
+        const handleKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onClose();
+            if (e.key === "ArrowRight") onChangeIndex(Math.min(images.length - 1, index + 1));
+            if (e.key === "ArrowLeft") onChangeIndex(Math.max(0, index - 1));
+        };
 
-    // attach listeners
-    if (typeof window !== "undefined") {
         window.addEventListener("keydown", handleKey);
-    }
-
-    // Cleanup on unmount
-    const cleanup = () => {
-        if (typeof window !== "undefined") window.removeEventListener("keydown", handleKey);
-    };
-
-    // ensure cleanup when component unmounts
-    try { /* noop to satisfy TS in this small wrapper */ } catch (e) {}
+        return () => window.removeEventListener("keydown", handleKey);
+    }, [index, images, onClose, onChangeIndex]);
 
     return (
         <motion.div
@@ -108,11 +100,11 @@ function LightboxWrapper({ images, index, onClose, onChangeIndex }: { images: ty
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-6 glass-dark"
-            onClick={() => { cleanup(); onClose(); }}
+            onClick={() => { onClose(); }}
         >
             <button
                 className="absolute top-8 right-8 text-cream hover:text-gold transition-colors"
-                onClick={(e) => { e.stopPropagation(); cleanup(); onClose(); }}
+                onClick={(e) => { e.stopPropagation(); onClose(); }}
             >
                 <X size={36} />
             </button>

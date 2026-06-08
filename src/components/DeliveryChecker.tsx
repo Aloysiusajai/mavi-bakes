@@ -14,7 +14,6 @@ export default function DeliveryChecker() {
 
   return (
     <div className="card p-6">
-      <h3 className="font-bold text-lg mb-2">Check Delivery Availability</h3>
       <div className="flex gap-2">
         <input type="text" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Enter PIN code" className="flex-1 p-3 rounded-lg border" />
         <button onClick={check} className="btn-primary">Check</button>

@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion, useSpring } from "framer-motion";
 
 export default function MouseGlow() {
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
     const springConfig = { damping: 25, stiffness: 150 };
     const mouseX = useSpring(0, springConfig);
     const mouseY = useSpring(0, springConfig);
@@ -16,7 +14,6 @@ export default function MouseGlow() {
         const handleMouseMove = (e: MouseEvent) => {
             mouseX.set(e.clientX);
             mouseY.set(e.clientY);
-            setMousePos({ x: e.clientX, y: e.clientY });
         };
 
         window.addEventListener("mousemove", handleMouseMove);

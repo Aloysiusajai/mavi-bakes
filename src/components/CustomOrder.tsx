@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Cake, Palette, Sparkles, Send, Upload, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import OrderSuccessModal from "./OrderSuccessModal";
 
 type FormValues = {
     flavor: string;
@@ -15,6 +16,10 @@ type FormValues = {
     date: string;
     name?: string;
     contact?: string;
+    email?: string;
+    quantity?: string;
+    address?: string;
+    price?: string;
 };
 
 const flavors = [
@@ -29,63 +34,90 @@ const sizes = ["Small (6\")", "Medium (8\")", "Large (10\")", "Multi-tier (Custo
 export default function CustomOrder() {
     const [selectedFlavor, setSelectedFlavor] = useState(flavors[0]);
     const [currentStep, setCurrentStep] = useState(1);
-    const { register, handleSubmit, watch } = useForm<FormValues>({
+    const { register, handleSubmit, control } = useForm<FormValues>({
         defaultValues: {
             flavor: flavors[0].id,
             size: sizes[1],
         }
     });
+    const watchedSize = useWatch({ control, name: "size" });
+    const watchedMessage = useWatch({ control, name: "message" });
 
-    const onSubmit = async (data: any) => {
-        const id = `ord_${Date.now()}`;
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState<string | undefined>(undefined);
+    const [modalOrderId, setModalOrderId] = useState<string | undefined>(undefined);
+
+    const onSubmit = async (data: FormValues) => {
+        const fallbackCreatedAt = new Date().toISOString();
+        const tempId = `ord_${fallbackCreatedAt.replace(/\D/g, "")}`;
         const orderPayload = {
             customerName: data.name || "",
-            phone: data.contact || "",
+            phoneNumber: data.contact || "",
+            email: data.email || "",
             cakeName: selectedFlavor.name || data.flavor || "Custom Cake",
-            orderId: id,
+            cakeWeight: data.size || "",
+            quantity: Number(data.quantity) || 1,
+            customMessage: data.message || "",
+            deliveryDate: data.date || "",
+            deliveryAddress: data.address || "",
+            totalPrice: Number(data.price) || 0,
         };
 
-        const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+            try {
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderPayload),
+                });
+                const created = (await res.json()) as {
+                    id?: string;
+                    _id?: string;
+                    customerName?: string;
+                    phoneNumber?: string;
+                    status?: string;
+                    createdAt?: string;
+                    error?: string;
+                    errors?: string[];
+                };
+                if (!res.ok) {
+                    // show server validation errors if provided
+                    const msg = created?.error || (created?.errors ? created.errors.join(', ') : 'Unable to create order');
+                    throw new Error(msg);
+                }
 
-        try {
-            const res = await fetch(`${API}/orders`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderPayload)
-            });
-            if (!res.ok) throw new Error('Unable to create order');
-            const created = await res.json();
-
-            // keep a local copy for user session and broadcast
-            const ordersRaw = localStorage.getItem("orders");
-            const orders = ordersRaw ? JSON.parse(ordersRaw) : [];
             const orderLocal = {
-                id: created.orderId || id,
+                id: created.id || created._id || tempId,
                 flavor: selectedFlavor.id,
                 size: data.size,
                 message: data.message || "",
                 date: data.date || "",
-                name: created.customerName,
-                contact: created.phone,
+                name: created.customerName || data.name,
+                contact: created.phoneNumber || data.contact,
                 status: created.status || 'Pending',
-                createdAt: created.createdAt || new Date().toISOString(),
+                createdAt: created.createdAt || fallbackCreatedAt,
             };
+
+            const ordersRaw = localStorage.getItem("orders");
+            const orders = ordersRaw ? JSON.parse(ordersRaw) : [];
             orders.unshift(orderLocal);
             localStorage.setItem("orders", JSON.stringify(orders));
-            sessionStorage.setItem("lastOrderId", created.orderId || id);
+            sessionStorage.setItem("lastOrderId", orderLocal.id);
 
             try {
                 const bc = new BroadcastChannel("orders_channel");
                 bc.postMessage({ type: "new-order", order: orderLocal });
                 bc.close();
-            } catch (e) {
-                localStorage.setItem("orders_event", JSON.stringify({ type: "new-order", order: orderLocal, t: Date.now() }));
+            } catch {
+                localStorage.setItem("orders_event", JSON.stringify({ type: "new-order", order: orderLocal, t: orderLocal.createdAt }));
             }
-
-            alert("Thank you — your order has been received. We will contact you shortly.");
+            // show in-app modal instead of native alert
+            setModalOrderId(orderLocal.id);
+            setModalMessage('Thank you — your order has been received. We will contact you shortly.');
+            setModalOpen(true);
         } catch (e) {
             console.error('Order submission failed', e);
-            alert('Unable to submit order right now. Please try again later.');
+            setModalMessage('Unable to submit order right now. Please try again later.');
+            setModalOpen(true);
         }
     };
 
@@ -108,7 +140,7 @@ export default function CustomOrder() {
                                 Design Your <span className="text-gold">Dream Cake</span>
                             </h2>
                             <p className="text-chocolate/60 mb-12 max-w-lg">
-                                Tell us your vision, and we'll bring it to life. Choose your favorites
+                                Tell us your vision, and we&apos;ll bring it to life. Choose your favorites
                                 or describe a completely custom masterpiece.
                             </p>
 
@@ -232,12 +264,41 @@ export default function CustomOrder() {
                                                     className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
                                                 />
                                             </div>
+                                            <div className="space-y-4">
+                                                <label className="block font-medium text-chocolate">Delivery Address</label>
+                                                <input
+                                                    {...register("address")}
+                                                    placeholder="Street, City, ZIP"
+                                                    className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block font-medium text-chocolate">Quantity</label>
+                                                    <input
+                                                        type="number"
+                                                        {...register("quantity")}
+                                                        defaultValue={1}
+                                                        className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block font-medium text-chocolate">Estimated Price (USD)</label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        {...register("price")}
+                                                        placeholder="e.g. 85.00"
+                                                        className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                                                    />
+                                                </div>
+                                            </div>
                                             <div className="p-6 glass rounded-2xl border-gold/10">
                                                 <h4 className="font-bold mb-2">Order Summary</h4>
                                                 <ul className="text-sm space-y-2 text-chocolate/70">
                                                     <li>Flavor: <span className="text-chocolate font-bold">{selectedFlavor.name}</span></li>
-                                                    <li>Size: <span className="text-chocolate font-bold">{watch("size")}</span></li>
-                                                    <li>Personalization: <span className="text-chocolate font-bold">{watch("message") || "None"}</span></li>
+                                                    <li>Size: <span className="text-chocolate font-bold">{watchedSize}</span></li>
+                                                    <li>Personalization: <span className="text-chocolate font-bold">{watchedMessage || "None"}</span></li>
                                                 </ul>
                                             </div>
                                         </motion.div>
@@ -302,10 +363,10 @@ export default function CustomOrder() {
                                     <motion.p
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        key={watch("message")}
+                                        key={watchedMessage}
                                         className="text-white font-serif text-xl font-bold bg-chocolate/30 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-white/20"
                                     >
-                                        {watch("message") || "Your Message Here"}
+                                        {watchedMessage || "Your Message Here"}
                                     </motion.p>
                                 </div>
 
@@ -329,6 +390,7 @@ export default function CustomOrder() {
 
                 </div>
             </div>
-        </section>
+                    <OrderSuccessModal open={modalOpen} onClose={() => setModalOpen(false)} orderId={modalOrderId} message={modalMessage} />
+                </section>
     );
 }

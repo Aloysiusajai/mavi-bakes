@@ -25,8 +25,12 @@ export default function SmoothScroll({
 
         // Let ScrollTrigger know about Lenis
         ScrollTrigger.scrollerProxy(document.documentElement, {
-            scrollTop(value) {
-                return arguments.length ? lenis.scrollTo(value) : lenis.scroll;
+            scrollTop(value?: number) {
+                if (typeof value !== 'undefined') {
+                    lenis.scrollTo(value);
+                    return;
+                }
+                return lenis.scroll;
             },
             getBoundingClientRect() {
                 return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };

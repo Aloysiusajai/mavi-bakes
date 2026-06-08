@@ -45,6 +45,58 @@
 :root {
   --background: #FFF7EE;
   --foreground: #5A2F2B;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --shadow-soft: 0 8px 30px rgba(90,47,43,0.08);
+  --max-width: 1200px;
+  --text-muted: rgba(90,47,43,0.6);
+}
+
+/* Dark theme overrides - toggled via `data-theme="dark"` on <html> */
+[data-theme='dark'] {
+  --background: #141214;
+  --foreground: #FFF7EE;
+  --color-cream: #2B1F1D;
+  --color-pastry: #2A1E1B;
+  --color-rose: #3A2A2A;
+  --color-chocolate: #FFEBD6;
+  --color-cinnamon: #D9A066;
+  --color-glass-bg: rgba(255,255,255,0.06);
+  --color-glass-border: rgba(255,255,255,0.04);
+  --text-muted: rgba(255,235,220,0.75);
+}
+
+/* Smooth theme transitions */
+html, body {
+  transition: background 240ms ease, color 240ms ease;
+}
+/* Design system utilities */
+.container {
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.lead {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+  max-width: 48rem;
+  line-height: 1.6;
+}
+
+.hero-title {
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
+  line-height: 1.02;
+  font-weight: 800;
 }
 
 body {
@@ -223,4 +275,10 @@ input:focus, select:focus { box-shadow: 0 10px 30px rgba(90,47,43,0.06); transfo
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-gold);
+}
+
+/* Focus-visible styles for keyboard users */
+:where(button, a, input, textarea):focus-visible {
+  outline: 3px solid rgba(212,175,55,0.18);
+  outline-offset: 3px;
 }

@@ -16,7 +16,6 @@ export default function SizeCalculator() {
 
   return (
     <div className="card p-6">
-      <h3 className="font-bold text-lg mb-2">Cake Size Calculator</h3>
       <div className="flex gap-2 items-center">
         <input type="number" value={guests === "" ? "" : guests} onChange={(e) => setGuests(e.target.value === "" ? "" : Number(e.target.value))} placeholder="Guest count" className="p-3 rounded-lg border w-36" />
         <button onClick={calc} className="btn-primary">Calculate</button>

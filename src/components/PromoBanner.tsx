@@ -1,23 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import PromoModal from "./PromoModal";
 
+const DEFAULT_END_DATE = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
 export default function PromoBanner(){
     const [open, setOpen] = useState(false);
-    const [visible, setVisible] = useState(true);
-
-    // default: ends in 7 days
-    const defaultEnd = new Date(Date.now() + 7*24*60*60*1000).toISOString();
-
-    useEffect(() => {
-        // auto hide after 12 seconds on first view
-        const id = setTimeout(() => setVisible(true), 0);
-        return () => clearTimeout(id);
-    }, []);
-
-    if (!visible) return null;
 
     return (
         <>
@@ -39,7 +29,7 @@ export default function PromoBanner(){
                 </motion.div>
             </div>
 
-            <PromoModal open={open} onClose={() => setOpen(false)} endDate={defaultEnd} />
+            <PromoModal open={open} onClose={() => setOpen(false)} endDate={DEFAULT_END_DATE} />
         </>
     );
 }
