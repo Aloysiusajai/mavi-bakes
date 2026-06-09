@@ -1,0 +1,115 @@
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function AdminLogin() {
+  const router = useRouter();
+  const [username, setUsername] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("email") || "";
+  });
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage(null);
+    if (!username || !password) {
+      setMessage("Please fill in both fields.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: username, password }),
+      });
+      console.log("Admin login POST response status", res.status);
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("Admin login failed:", data);
+        setMessage(data?.error || "Invalid email or password");
+      } else if (data?.success) {
+        console.log("Admin login success for", username, "role:", data.role);
+        // successful login -> redirect to /admin for admins
+        if (data.role === "admin") router.push("/admin");
+        else router.push("/profile");
+      } else {
+        setMessage(data?.error || "Invalid email or password");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage(err instanceof Error ? err.message : "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main
+      className="min-h-screen flex items-center justify-center"
+      style={{ background: "var(--background)" }}
+    >
+      <div className="w-full max-w-md p-8 glass">
+        <h1
+          className="text-2xl font-serif mb-4"
+          style={{ color: "var(--foreground)" }}
+        >
+          Admin Login
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <label className="block">
+            <span className="text-sm" style={{ color: "var(--foreground)" }}>
+              Username
+            </span>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full mt-1 p-2 rounded-md border"
+              placeholder="admin"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm" style={{ color: "var(--foreground)" }}>
+              Password
+            </span>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full mt-1 p-2 rounded-md border"
+              placeholder="••••••••"
+            />
+          </label>
+
+          <div className="flex items-center justify-between">
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-md"
+              style={{
+                background: "var(--color-chocolate)",
+                color: "var(--color-cream)",
+              }}
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Admin sign in"}
+            </button>
+          </div>
+
+          {message && (
+            <p
+              className="text-sm mt-2"
+              style={{ color: "var(--color-chocolate)" }}
+            >
+              {message}
+            </p>
+          )}
+        </form>
+      </div>
+    </main>
+  );
+}
