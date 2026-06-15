@@ -1,0 +1,38 @@
+[
+  {
+    "_id": "6a2f7b57464b6dd43d34c2e3",
+    "customerName": "I am Jarvis",
+    "phoneNumber": "7774774",
+    "email": "iamjarvis352@gmail.com",
+    "cakeName": "Classic Chocolate Royale (x1)",
+    "cakeWeight": "Cart Order",
+    "quantity": 1,
+    "customMessage": "hth",
+    "deliveryDate": "2026-06-26T00:00:00.000Z",
+    "deliveryAddress": "hhhfhfh",
+    "totalPrice": 45,
+    "status": "Pending",
+    "thankYouSent": false,
+    "cakeReadySent": false,
+    "createdAt": "2026-06-15T04:11:04.002Z",
+    "updatedAt": "2026-06-15T04:11:04.002Z"
+  },
+  {
+    "_id": "6a2f7a72464b6dd43d34c2e2",
+    "customerName": "I am Jarvis",
+    "phoneNumber": "4646463663",
+    "email": "iamjarvis352@gmail.com",
+    "cakeName": "Velvet Crimson Dream (x1)",
+    "cakeWeight": "Cart Order",
+    "quantity": 1,
+    "customMessage": "gesgesg",
+    "deliveryDate": "2026-06-19T00:00:00.000Z",
+    "deliveryAddress": "gdsgs",
+    "totalPrice": 50,
+    "status": "Pending",
+    "thankYouSent": false,
+    "cakeReadySent": false,
+    "createdAt": "2026-06-15T04:07:14.835Z",
+    "updatedAt": "2026-06-15T04:07:14.835Z"
+  }
+]
