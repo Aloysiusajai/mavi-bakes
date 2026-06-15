@@ -21,7 +21,12 @@ export default function Navbar() {
   const totalItems = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const firstMobileLinkRef = useRef(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -99,7 +104,7 @@ export default function Navbar() {
             aria-label="Open shopping cart"
           >
             <ShoppingCart size={24} />
-            {totalItems > 0 && (
+            {mounted && totalItems > 0 && (
               <span className="absolute top-0 right-0 w-4 h-4 bg-gold text-cream text-[10px] flex items-center justify-center rounded-full">
                 {totalItems}
               </span>
