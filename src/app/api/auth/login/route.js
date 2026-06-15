@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/mongodb";
-import User from "@/models/User";
+import { findUserByEmail } from "@/lib/userService";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/jwt";
 
@@ -38,10 +37,8 @@ export async function POST(req) {
       return res;
     }
 
-    // Regular user login — requires MongoDB
-    await connectToDatabase();
-
-    const user = await User.findOne({ email: String(email).toLowerCase() });
+    // Regular user login — uses userService with local JSON fallback
+    const user = await findUserByEmail(email);
     if (!user)
       return NextResponse.json(
         { error: "Invalid email or password" },

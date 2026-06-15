@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/mongodb";
-import User from "@/models/User";
+import { findUserByEmail, createUser } from "@/lib/userService";
 
 export async function POST(req) {
   try {
@@ -12,20 +11,19 @@ export async function POST(req) {
         { status: 400 },
       );
 
-    await connectToDatabase();
-    const existing = await User.findOne({ email: String(email).toLowerCase() });
+    const existing = await findUserByEmail(email);
     if (existing)
       return NextResponse.json(
         { error: "Email already registered" },
         { status: 409 },
       );
 
-    const created = await User.createUser(
+    const created = await createUser(
       String(email).toLowerCase(),
       String(password),
       name,
     );
-    return NextResponse.json({ success: true, id: created._id });
+    return NextResponse.json({ success: true, id: created._id || created.id });
   } catch (e) {
     console.error("[auth/register] error", e);
     return NextResponse.json(
