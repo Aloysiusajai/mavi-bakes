@@ -30,18 +30,45 @@ function writeFallbackUsers(users) {
 
 export async function findUserByEmail(email) {
   const cleanEmail = String(email).trim().toLowerCase();
+  let dbUser = null;
+  let dbSuccess = false;
   try {
     await connectToDatabase();
-    return await User.findOne({ email: cleanEmail }).lean();
+    dbUser = await User.findOne({ email: cleanEmail }).lean();
+    dbSuccess = true;
   } catch (err) {
     console.warn(
       "MongoDB findOne failed for User, falling back to local JSON database:",
       err.message || err,
     );
-    const users = readFallbackUsers();
-    const found = users.find((u) => u.email === cleanEmail);
-    return found || null;
   }
+
+  const users = readFallbackUsers();
+
+  if (dbSuccess) {
+    if (dbUser) return dbUser;
+
+    const foundLocal = users.find((u) => u.email === cleanEmail);
+    if (foundLocal) {
+      console.log(`Syncing offline registered user ${cleanEmail} to MongoDB...`);
+      try {
+        const newUserDoc = await User.create({
+          _id: foundLocal._id || foundLocal.id,
+          email: foundLocal.email,
+          passwordHash: foundLocal.passwordHash,
+          name: foundLocal.name,
+          createdAt: foundLocal.createdAt ? new Date(foundLocal.createdAt) : new Date(),
+        });
+        return typeof newUserDoc.toObject === "function" ? newUserDoc.toObject() : newUserDoc;
+      } catch (syncErr) {
+        console.error(`Failed to sync user ${cleanEmail} to MongoDB:`, syncErr);
+      }
+    }
+    return null;
+  }
+
+  const found = users.find((u) => u.email === cleanEmail);
+  return found || null;
 }
 
 export async function createUser(email, password, name) {
