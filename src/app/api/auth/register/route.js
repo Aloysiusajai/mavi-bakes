@@ -26,6 +26,12 @@ export async function POST(req) {
     return NextResponse.json({ success: true, id: created._id || created.id });
   } catch (e) {
     console.error("[auth/register] error", e);
+    if (e instanceof Error && e.message.includes("already registered")) {
+      return NextResponse.json(
+        { error: "Email already registered" },
+        { status: 409 },
+      );
+    }
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },

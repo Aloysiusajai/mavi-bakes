@@ -5,5 +5,19 @@
     "passwordHash": "$2a$10$oWVuUUwY.Q/5hBCerLjiOu7abcsU9bKvX6ebX.ttSYn93nqFj5AIy",
     "name": "Test User",
     "createdAt": "2026-06-15T04:47:59.787Z"
+  },
+  {
+    "_id": "6a2f8591080d856a3e01d362",
+    "email": "newuser@example.com",
+    "passwordHash": "$2a$10$LCNRRiITrLfzssPiKs1GOuxWTkqw9sdEKzqzhti45JlG0HoMTE0aC",
+    "name": "New User",
+    "createdAt": "2026-06-15T04:54:41.707Z"
+  },
+  {
+    "_id": "6a2f8651080d856a3e01d363",
+    "email": "anotheruser@example.com",
+    "passwordHash": "$2a$10$D7lL8b26mysXOqdjUuOgs.J6rC7s0rZEsGwyWgGZB3bwdCDPAIZau",
+    "name": "",
+    "createdAt": "2026-06-15T04:57:53.688Z"
   }
 ]
