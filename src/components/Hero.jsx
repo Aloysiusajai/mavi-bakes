@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
+import Link from "next/link";
 
 const blobs = [
   {
@@ -128,20 +129,24 @@ export default function Hero() {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="btn-primary flex items-center gap-2"
-            >
-              Order Now <ArrowRight size={20} />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="btn-secondary flex items-center gap-2"
-            >
-              <Play size={18} fill="currentColor" /> View Collection
-            </motion.button>
+            <Link href="/#order" passHref legacyBehavior>
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="btn-primary flex items-center gap-2 cursor-pointer"
+              >
+                Order Now <ArrowRight size={20} />
+              </motion.a>
+            </Link>
+            <Link href="/#collection" passHref legacyBehavior>
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="btn-secondary flex items-center gap-2 cursor-pointer"
+              >
+                <Play size={18} fill="currentColor" /> View Collection
+              </motion.a>
+            </Link>
           </div>
 
           {/* Stats quick view */}

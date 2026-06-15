@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function PromoModal({ open, onClose, endDate }) {
   const [timeLeft, setTimeLeft] = useState("");
@@ -52,18 +53,20 @@ export default function PromoModal({ open, onClose, endDate }) {
           Get 20% off on all custom orders placed within the countdown. Use code{" "}
           <strong>MAVI20</strong> at checkout.
         </p>
-        <div className="flex items-center justify-between bg-white/50 p-4 rounded-xl border border-chocolate/10 mb-6">
+        <div className="flex items-center justify-between bg-cream/30 p-4 rounded-xl border border-chocolate/10 mb-6">
           <div>
             <p className="text-sm text-chocolate/60">Offer ends in</p>
             <p className="text-xl font-bold text-chocolate">{timeLeft}</p>
           </div>
           <div>
-            <a
-              href="#order"
-              className="bg-chocolate text-cream px-6 py-3 rounded-full font-bold hover:bg-gold transition-all"
-            >
-              Order Now
-            </a>
+            <Link href="/#order" passHref legacyBehavior>
+              <a
+                onClick={onClose}
+                className="bg-chocolate text-cream px-6 py-3 rounded-full font-bold hover:bg-gold transition-all cursor-pointer"
+              >
+                Order Now
+              </a>
+            </Link>
           </div>
         </div>
         <p className="text-sm text-chocolate/60">

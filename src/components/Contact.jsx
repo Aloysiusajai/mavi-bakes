@@ -40,7 +40,7 @@ export default function Contact() {
                 },
               ].map((item, i) => (
                 <div key={i} className="flex gap-6 group">
-                  <div className="w-14 h-14 rounded-2xl bg-white shadow-md flex items-center justify-center transition-all group-hover:scale-110 group-hover:bg-gold/10">
+                  <div className="w-14 h-14 rounded-2xl bg-cream shadow-md flex items-center justify-center transition-all group-hover:scale-110 group-hover:bg-gold/10">
                     {item.icon}
                   </div>
                   <div>
@@ -80,7 +80,7 @@ export default function Contact() {
                     Your Name
                   </label>
                   <input
-                    className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-white/50"
+                    className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/40"
                     placeholder="John Doe"
                   />
                 </div>
@@ -89,7 +89,7 @@ export default function Contact() {
                     Email Address
                   </label>
                   <input
-                    className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-white/50"
+                    className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/40"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -99,7 +99,7 @@ export default function Contact() {
                   Subject
                 </label>
                 <input
-                  className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-white/50"
+                  className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/40"
                   placeholder="General Inquiry"
                 />
               </div>
@@ -109,7 +109,7 @@ export default function Contact() {
                 </label>
                 <textarea
                   rows={4}
-                  className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-white/50"
+                  className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/40"
                   placeholder="How can we help you?"
                 />
               </div>

@@ -1,10 +1,12 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Star, ArrowRight } from "lucide-react";
+import { Star, ArrowRight, ShoppingCart, Eye } from "lucide-react";
 import { useState } from "react";
 import QuickViewModal from "./QuickViewModal";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/context/ToastContext";
 
 const cakes = [
   {
@@ -52,20 +54,21 @@ const cakes = [
     name: "Divine Berry Ganache",
     category: "Specialty",
     price: "$65",
-    image: "/images/chocolate_cake.png", // Reusing for variety in layout
+    image: "/images/chocolate_cake.png",
     rating: 4.7,
   },
 ];
 
-function CakeCard({ cake }) {
+function CakeCard({ cake, onQuickView }) {
+  const { addToCart } = useCart();
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
+  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 15 });
+  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 15 });
 
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [10, -10]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-10, 10]);
 
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -93,73 +96,79 @@ function CakeCard({ cake }) {
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      className="relative group h-[400px] w-full rounded-3xl bg-cream cursor-pointer card-float card"
+      className="relative group w-full bg-white dark:bg-white/5 rounded-3xl overflow-hidden shadow-soft hover:shadow-2xl border border-chocolate/5 hover:border-gold/20 transition-all duration-300 flex flex-col h-[440px] cursor-pointer"
+      onClick={() => onQuickView(cake)}
     >
-      <div
-        style={{
-          transform: "translateZ(50px)",
-          transformStyle: "preserve-3d",
-        }}
-        className="absolute inset-4 rounded-2xl overflow-hidden bg-white shadow-xl group-hover:shadow-2xl transition-shadow"
-      >
+      {/* Image Container */}
+      <div className="relative w-full h-[240px] overflow-hidden bg-cream flex-shrink-0">
         <Image
           src={cake.image}
           alt={cake.name}
           fill
-          className="object-cover group-hover:scale-110 transition-transform duration-700 parallax-img"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover group-hover:scale-110 transition-transform duration-700"
         />
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-chocolate/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Dynamic Shadow Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
-        {/* Card Content (Floating above) */}
-        <div
-          style={{ transform: "translateZ(30px)" }}
-          className="absolute bottom-6 left-6 right-6 text-white"
-        >
-          <div className="flex items-center gap-1 text-gold mb-1">
-            <Star size={12} fill="currentColor" />
-            <span className="text-xs font-bold">{cake.rating}</span>
-          </div>
-          <p className="text-xs text-cream/70 font-medium uppercase tracking-widest">
+        {/* Float Price Badge */}
+        <div className="absolute top-4 right-4 bg-gold text-cream font-bold px-3 py-1 rounded-full text-sm shadow-md">
+          {cake.price}
+        </div>
+
+        {/* Rating Badge */}
+        <div className="absolute top-4 left-4 bg-white/95 dark:bg-black/70 backdrop-blur-sm text-chocolate dark:text-cream font-bold px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-md">
+          <Star size={12} fill="currentColor" className="text-gold" />
+          <span>{cake.rating}</span>
+        </div>
+      </div>
+
+      {/* Details Container */}
+      <div className="p-5 flex-1 flex flex-col justify-between">
+        <div>
+          <p className="text-[10px] font-bold text-gold uppercase tracking-widest mb-1">
             {cake.category}
           </p>
-          <h3 className="text-xl font-serif font-bold group-hover:text-gold transition-colors">
+          <h3 className="text-lg font-serif font-bold text-chocolate dark:text-cream group-hover:text-gold transition-colors duration-200 line-clamp-2">
             {cake.name}
           </h3>
+        </div>
 
-          <div
-            className="mt-4 flex gap-3"
-            role="toolbar"
-            aria-label={`Actions for ${cake.name}`}
-          >
+        <div>
+          <div className="border-t border-chocolate/5 dark:border-white/5 my-3" />
+          <div className="flex gap-2">
             <button
               type="button"
-              className="px-3 py-2 rounded-md bg-white/10 text-cream hover:bg-white/20"
+              onClick={(e) => {
+                e.stopPropagation();
+                onQuickView(cake);
+              }}
+              className="flex-1 py-2.5 text-xs font-semibold rounded-full border border-chocolate/10 dark:border-white/10 text-chocolate dark:text-cream hover:bg-chocolate hover:text-cream transition-colors text-center flex items-center justify-center gap-1 bg-transparent"
               aria-label={`Quick view ${cake.name}`}
             >
-              Quick View
+              <Eye size={14} /> Quick View
             </button>
             <button
               type="button"
-              className="px-3 py-2 rounded-md bg-gold text-cream font-bold hover:opacity-95"
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart({
+                  id: cake.id,
+                  name: cake.name,
+                  price: cake.price,
+                  quantity: 1,
+                  image: cake.image,
+                });
+              }}
+              className="flex-1 py-2.5 text-xs font-bold rounded-full bg-gold text-cream hover:bg-chocolate transition-colors text-center flex items-center justify-center gap-1 shadow-sm border border-transparent"
               aria-label={`Add ${cake.name} to cart`}
             >
-              Add to cart
+              <ShoppingCart size={14} /> Add
             </button>
           </div>
         </div>
-
-        <motion.div
-          style={{ transform: "translateZ(40px)" }}
-          className="absolute top-6 right-6 bg-gold text-cream w-12 h-12 rounded-full flex items-center justify-center font-bold shadow-lg"
-        >
-          {cake.price}
-        </motion.div>
       </div>
-
-      {/* Behind background glow */}
-      <div className="absolute -inset-1 bg-gold opacity-0 group-hover:opacity-20 blur-2xl transition-opacity active:opacity-50" />
     </motion.div>
   );
 }
@@ -183,17 +192,16 @@ export default function FeaturedCakes() {
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div className="max-w-2xl">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-chocolate mb-4">
-              Explore Our{" "}
-              <span className="text-gold italic">Sweet Creations</span>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-chocolate dark:text-cream mb-4">
+              Explore Our <span className="text-gold italic">Sweet Creations</span>
             </h2>
-            <p className="text-chocolate/70 leading-relaxed text-lg">
+            <p className="text-chocolate/70 dark:text-cream/70 leading-relaxed text-lg">
               From decadent chocolate masterpieces to ethereal wedding tiers,
-              every cake is told through a perfect balance of flavor, texture,
+              every cake tells a story through a perfect balance of flavor, texture,
               and artistry.
             </p>
           </div>
-          <button className="text-chocolate font-bold flex items-center gap-2 group">
+          <button className="text-chocolate dark:text-cream font-bold flex items-center gap-2 group hover:text-gold transition-colors">
             View All Collection
             <span className="w-8 h-8 rounded-full bg-chocolate text-cream flex items-center justify-center group-hover:bg-gold transition-colors">
               <ArrowRight size={16} />
@@ -209,24 +217,19 @@ export default function FeaturedCakes() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1, duration: 0.6 }}
-              className="card"
+              className="w-full"
             >
-              <div onClick={() => {}}>
-                <CakeCard cake={cake} />
-                <div className="mt-4 flex justify-end px-2">
-                  <button
-                    onClick={() => openQuickView(cake)}
-                    className="px-3 py-2 rounded-md btn-secondary"
-                  >
-                    Quick view
-                  </button>
-                </div>
-              </div>
+              <CakeCard cake={cake} onQuickView={openQuickView} />
             </motion.div>
           ))}
         </div>
       </div>
-      <QuickViewModal open={open} onClose={closeQuickView} item={selected} />
+
+      <AnimatePresence>
+        {open && (
+          <QuickViewModal onClose={closeQuickView} item={selected} />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

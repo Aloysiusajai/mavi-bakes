@@ -1,6 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useToast } from "./ToastContext";
 
 const CartContext = createContext(null);
 
@@ -20,6 +22,9 @@ export function CartProvider({ children }) {
       return [];
     }
   });
+  const [isCartOpen, setCartOpen] = useState(false);
+  const router = useRouter();
+  const { showToast } = useToast();
 
   useEffect(() => {
     try {
@@ -35,6 +40,25 @@ export function CartProvider({ children }) {
       }
       return [...prev, item];
     });
+    setCartOpen(true);
+    showToast({
+      title: "Added to cart",
+      description: `${item.quantity}× ${item.name}`,
+    });
+  };
+
+  const updateQuantity = (id, change) => {
+    setItems((prev) =>
+      prev
+        .map((p) => {
+          if (p.id === id) {
+            const newQty = p.quantity + change;
+            return newQty > 0 ? { ...p, quantity: newQty } : null;
+          }
+          return p;
+        })
+        .filter(Boolean)
+    );
   };
 
   const removeFromCart = (id) => {
@@ -44,7 +68,7 @@ export function CartProvider({ children }) {
   const clearCart = () => setItems([]);
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ items, isCartOpen, setCartOpen, addToCart, updateQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );

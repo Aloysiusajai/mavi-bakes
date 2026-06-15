@@ -17,9 +17,8 @@ export async function POST(req) {
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-    await connectToDatabase();
-
-    // Admin special-case
+    // Admin special-case — checked BEFORE connecting to DB so admin login
+    // works even when MongoDB Atlas IP is not whitelisted.
     if (
       ADMIN_EMAIL &&
       String(email).trim().toLowerCase() ===
@@ -38,6 +37,9 @@ export async function POST(req) {
       );
       return res;
     }
+
+    // Regular user login — requires MongoDB
+    await connectToDatabase();
 
     const user = await User.findOne({ email: String(email).toLowerCase() });
     if (!user)

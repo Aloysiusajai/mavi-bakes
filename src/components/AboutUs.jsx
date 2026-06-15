@@ -67,7 +67,7 @@ export default function AboutUs() {
   ];
 
   return (
-    <section id="about" className="py-24 px-6 overflow-hidden bg-white">
+    <section id="about" className="py-24 px-6 overflow-hidden bg-cream/40">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <motion.div
@@ -128,7 +128,7 @@ export default function AboutUs() {
             </div>
 
             {/* Decorative badge */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gold rounded-full flex flex-col items-center justify-center text-cream shadow-2xl z-10 border-4 border-white">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gold rounded-full flex flex-col items-center justify-center text-cream shadow-2xl z-10 border-4 border-cream">
               <span className="text-sm uppercase font-bold tracking-tighter">
                 Est.
               </span>

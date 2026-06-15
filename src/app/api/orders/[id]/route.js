@@ -1,9 +1,8 @@
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
 
-import connectToDatabase from "@/lib/mongodb";
+import { getOrderById, updateOrder, deleteOrder } from "@/lib/orderService";
 import { verifyToken } from "@/lib/jwt";
-import Order from "@/models/Order";
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -27,7 +26,8 @@ async function requireAdmin() {
 }
 
 function normalizeOrder(doc) {
-  return { ...doc, id: doc._id.toString() };
+  const docObj = typeof doc.toObject === "function" ? doc.toObject() : doc;
+  return { ...docObj, id: (docObj._id || docObj.id).toString() };
 }
 
 async function getOrderId(context) {
@@ -41,8 +41,7 @@ export async function GET(_req, context) {
     if (!mongoose.Types.ObjectId.isValid(id))
       return json({ error: "Invalid id" }, 400);
 
-    await connectToDatabase();
-    const doc = await Order.findById(id).lean();
+    const doc = await getOrderById(id);
     if (!doc) return json({ error: "Not found" }, 404);
 
     return json(normalizeOrder(doc));
@@ -84,8 +83,7 @@ export async function PUT(req, context) {
     if (update.deliveryDate)
       update.deliveryDate = new Date(update.deliveryDate);
 
-    await connectToDatabase();
-    const doc = await Order.findByIdAndUpdate(id, update, { new: true }).lean();
+    const doc = await updateOrder(id, update);
     if (!doc) return json({ error: "Not found" }, 404);
 
     return json(normalizeOrder(doc));
@@ -105,8 +103,7 @@ export async function DELETE(_req, context) {
     if (!mongoose.Types.ObjectId.isValid(id))
       return json({ error: "Invalid id" }, 400);
 
-    await connectToDatabase();
-    const doc = await Order.findByIdAndDelete(id).lean();
+    const doc = await deleteOrder(id);
     if (!doc) return json({ error: "Not found" }, 404);
 
     return json({ success: true, id });
@@ -117,3 +114,4 @@ export async function DELETE(_req, context) {
     return json({ error: "Internal Server Error" }, 500);
   }
 }
+

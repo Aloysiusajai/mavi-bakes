@@ -12,7 +12,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/context/ToastContext";
 import OrderSuccessModal from "./OrderSuccessModal";
 
 const flavors = [
@@ -52,7 +54,12 @@ const sizes = [
 export default function CustomOrder() {
   const [selectedFlavor, setSelectedFlavor] = useState(flavors[0]);
   const [currentStep, setCurrentStep] = useState(1);
-  const { register, handleSubmit, control } = useForm({
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       flavor: flavors[0].id,
       size: sizes[1],
@@ -65,7 +72,28 @@ export default function CustomOrder() {
   const [modalMessage, setModalMessage] = useState(undefined);
   const [modalOrderId, setModalOrderId] = useState(undefined);
 
+  const router = useRouter();
+  const { showToast } = useToast();
+
   const onSubmit = async (data) => {
+    try {
+      const authRes = await fetch("/api/auth/me");
+      const auth = await authRes.json();
+      if (!auth.authenticated) {
+        showToast({
+          title: "Login Required",
+          description: "Please log in to submit a custom order request.",
+          duration: 4000,
+        });
+        router.push("/login");
+        return;
+      }
+    } catch (err) {
+      console.error("Auth check failed in custom order", err);
+      router.push("/login");
+      return;
+    }
+
     const fallbackCreatedAt = new Date().toISOString();
     const tempId = `ord_${fallbackCreatedAt.replace(/\D/g, "")}`;
     const orderPayload = {
@@ -139,7 +167,9 @@ export default function CustomOrder() {
     } catch (e) {
       console.error("Order submission failed", e);
       setModalMessage(
-        "Unable to submit order right now. Please try again later.",
+        e instanceof Error && e.message
+          ? e.message
+          : "Unable to submit order right now. Please try again later.",
       );
       setModalOpen(true);
     }
@@ -149,7 +179,7 @@ export default function CustomOrder() {
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   return (
-    <section id="order" className="py-24 px-6 bg-white overflow-hidden">
+    <section id="order" className="py-24 px-6 bg-cream/40 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-16">
           {/* Form Side */}
@@ -233,10 +263,10 @@ export default function CustomOrder() {
                         </h3>
                         <select
                           {...register("size")}
-                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30 text-chocolate dark:bg-chocolate dark:text-cream"
                         >
                           {sizes.map((s) => (
-                            <option key={s} value={s}>
+                            <option key={s} value={s} className="bg-cream text-chocolate dark:bg-chocolate dark:text-cream">
                               {s}
                             </option>
                           ))}
@@ -264,7 +294,7 @@ export default function CustomOrder() {
                         <input
                           {...register("message")}
                           placeholder="e.g. Happy Birthday Chloe!"
-                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30 text-chocolate dark:bg-[#1C1A1C] dark:text-cream"
                         />
                       </div>
                       <div className="space-y-4">
@@ -301,7 +331,7 @@ export default function CustomOrder() {
                         <input
                           type="date"
                           {...register("date")}
-                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30 text-chocolate dark:bg-[#1C1A1C] dark:text-cream"
                         />
                       </div>
                       <div className="space-y-4">
@@ -309,30 +339,45 @@ export default function CustomOrder() {
                           Your Name
                         </label>
                         <input
-                          {...register("name")}
+                          {...register("name", { required: "Name is required" })}
                           placeholder="Full name"
-                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30 text-chocolate dark:bg-[#1C1A1C] dark:text-cream"
                         />
+                        {errors.name && (
+                          <span className="text-red-500 text-xs font-semibold ml-2 block mt-1">
+                            {errors.name.message}
+                          </span>
+                        )}
                       </div>
                       <div className="space-y-4">
                         <label className="block font-medium text-chocolate">
                           Phone Number
                         </label>
                         <input
-                          {...register("contact")}
+                          {...register("contact", { required: "Phone number is required" })}
                           placeholder="e.g. +1234567890"
-                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30 text-chocolate dark:bg-[#1C1A1C] dark:text-cream"
                         />
+                        {errors.contact && (
+                          <span className="text-red-500 text-xs font-semibold ml-2 block mt-1">
+                            {errors.contact.message}
+                          </span>
+                        )}
                       </div>
                       <div className="space-y-4">
                         <label className="block font-medium text-chocolate">
                           Delivery Address
                         </label>
                         <input
-                          {...register("address")}
+                          {...register("address", { required: "Delivery address is required" })}
                           placeholder="Street, City, ZIP"
-                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                          className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30 text-chocolate dark:bg-[#1C1A1C] dark:text-cream"
                         />
+                        {errors.address && (
+                          <span className="text-red-500 text-xs font-semibold ml-2 block mt-1">
+                            {errors.address.message}
+                          </span>
+                        )}
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -343,7 +388,7 @@ export default function CustomOrder() {
                             type="number"
                             {...register("quantity")}
                             defaultValue={1}
-                            className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                            className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30 text-chocolate dark:bg-[#1C1A1C] dark:text-cream"
                           />
                         </div>
                         <div>
@@ -355,7 +400,7 @@ export default function CustomOrder() {
                             step="0.01"
                             {...register("price")}
                             placeholder="e.g. 85.00"
-                            className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30"
+                            className="w-full p-4 rounded-2xl border-2 border-cream focus:border-gold outline-none bg-cream/30 text-chocolate dark:bg-[#1C1A1C] dark:text-cream"
                           />
                         </div>
                       </div>
@@ -445,13 +490,13 @@ export default function CustomOrder() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     key={watchedMessage}
-                    className="text-white font-serif text-xl font-bold bg-chocolate/30 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-white/20"
+                    className="text-white font-serif text-xl font-bold bg-black/45 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-white/20"
                   >
                     {watchedMessage || "Your Message Here"}
                   </motion.p>
                 </div>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-chocolate/40 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
 
                 {/* Floaties */}
                 <motion.div

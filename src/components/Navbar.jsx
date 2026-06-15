@@ -6,16 +6,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/context/CartContext";
 
 const navLinks = [
-  { name: "Home", href: "#home" },
-  { name: "Collection", href: "#collection" },
-  { name: "About", href: "#about" },
-  { name: "Gallery", href: "#gallery" },
-  { name: "Custom Order", href: "#order" },
+  { name: "Home", href: "/#home" },
+  { name: "Collection", href: "/#collection" },
+  { name: "About", href: "/#about" },
+  { name: "Gallery", href: "/#gallery" },
+  { name: "Custom Order", href: "/#order" },
 ];
 
 export default function Navbar() {
+  const { items, setCartOpen } = useCart();
+  const totalItems = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const firstMobileLinkRef = useRef(null);
@@ -90,11 +93,17 @@ export default function Navbar() {
           <div className="hidden md:flex items-center mr-2" aria-hidden>
             <ThemeToggle />
           </div>
-          <button className="relative p-2 text-chocolate hover:text-gold transition-colors">
+          <button
+            onClick={() => setCartOpen(true)}
+            className="relative p-2 text-chocolate hover:text-gold transition-colors"
+            aria-label="Open shopping cart"
+          >
             <ShoppingCart size={24} />
-            <span className="absolute top-0 right-0 w-4 h-4 bg-gold text-cream text-[10px] flex items-center justify-center rounded-full">
-              0
-            </span>
+            {totalItems > 0 && (
+              <span className="absolute top-0 right-0 w-4 h-4 bg-gold text-cream text-[10px] flex items-center justify-center rounded-full">
+                {totalItems}
+              </span>
+            )}
           </button>
 
           <button
@@ -121,7 +130,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="#order"
+              href="/#order"
               className="px-6 py-2.5 rounded-full font-medium btn-primary"
             >
               Order Now
@@ -132,7 +141,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <AnimatePresence>
-        {mobileMenuOpen && mobileMenuOpen && (
+        {mobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -171,7 +180,7 @@ export default function Navbar() {
                   <div className="w-5 h-5 bg-chocolate" />
                 </div>
                 <Link
-                  href="#order"
+                  href="/#order"
                   onClick={() => setMobileMenuOpen(false)}
                   className="bg-gold text-cream px-6 py-2 rounded-full font-medium shadow-md"
                 >

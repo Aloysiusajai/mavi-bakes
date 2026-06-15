@@ -1,5 +1,4 @@
-import connectToDatabase from "../../../lib/mongodb";
-import Order from "../../../models/Order";
+import { getOrders, createOrder } from "@/lib/orderService";
 
 function validate(body) {
   const errors = [];
@@ -25,9 +24,7 @@ export async function POST(req) {
       });
     }
 
-    await connectToDatabase();
-
-    const doc = await Order.create({
+    const doc = await createOrder({
       customerName: body.customerName,
       phoneNumber: body.phoneNumber,
       email: body.email,
@@ -40,7 +37,8 @@ export async function POST(req) {
       totalPrice: body.totalPrice,
     });
 
-    const result = { ...doc.toObject(), id: doc._id };
+    const docObj = typeof doc.toObject === "function" ? doc.toObject() : doc;
+    const result = { ...docObj, id: (docObj._id || docObj.id).toString() };
     return new Response(JSON.stringify(result), {
       status: 201,
       headers: { "Content-Type": "application/json" },
@@ -56,9 +54,11 @@ export async function POST(req) {
 
 export async function GET() {
   try {
-    await connectToDatabase();
-    const docs = await Order.find().sort({ createdAt: -1 }).lean();
-    const mapped = docs.map((d) => ({ ...d, id: d._id.toString() }));
+    const docs = await getOrders();
+    const mapped = docs.map((d) => {
+      const docObj = typeof d.toObject === "function" ? d.toObject() : d;
+      return { ...docObj, id: (docObj._id || docObj.id).toString() };
+    });
     return new Response(JSON.stringify(mapped), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -71,3 +71,4 @@ export async function GET() {
     });
   }
 }
+
