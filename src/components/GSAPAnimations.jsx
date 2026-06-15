@@ -66,8 +66,7 @@ export default function GSAPAnimations() {
       });
     });
 
-    // subtle hue rotation on root to add color movement
-    gsap.to(document.documentElement, {
+    const tween = gsap.to(document.documentElement, {
       duration: 12,
       repeat: -1,
       ease: "none",
@@ -82,6 +81,7 @@ export default function GSAPAnimations() {
     });
 
     return () => {
+      tween.kill();
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);

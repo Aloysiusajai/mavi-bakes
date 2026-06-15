@@ -4,12 +4,17 @@ import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === "undefined") return "light";
-    return localStorage.getItem("theme") || "light";
-  });
+  const [theme, setTheme] = useState("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    const saved = localStorage.getItem("theme") || "light";
+    setTheme(saved);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     const root = document.documentElement;
     root.setAttribute("data-theme", theme);
     try {
@@ -17,9 +22,22 @@ export default function ThemeToggle() {
     } catch {
       // ignore
     }
-  }, [theme]);
+  }, [theme, mounted]);
 
   const toggle = () => setTheme((t) => (t === "light" ? "dark" : "light"));
+
+  if (!mounted) {
+    return (
+      <button
+        aria-label="Switch to dark theme"
+        className="p-2 rounded-full btn-secondary flex items-center justify-center"
+        title="Toggle theme"
+        disabled
+      >
+        <Moon size={18} />
+      </button>
+    );
+  }
 
   return (
     <button

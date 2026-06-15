@@ -38,7 +38,7 @@ async function getOrderId(context) {
 export async function GET(_req, context) {
   try {
     const id = await getOrderId(context);
-    if (!mongoose.Types.ObjectId.isValid(id))
+    if (!id)
       return json({ error: "Invalid id" }, 400);
 
     const doc = await getOrderById(id);
@@ -56,7 +56,7 @@ export async function PUT(req, context) {
     await requireAdmin();
 
     const id = await getOrderId(context);
-    if (!mongoose.Types.ObjectId.isValid(id))
+    if (!id)
       return json({ error: "Invalid id" }, 400);
 
     const body = await req.json();
@@ -100,7 +100,7 @@ export async function DELETE(_req, context) {
     await requireAdmin();
 
     const id = await getOrderId(context);
-    if (!mongoose.Types.ObjectId.isValid(id))
+    if (!id)
       return json({ error: "Invalid id" }, 400);
 
     const doc = await deleteOrder(id);

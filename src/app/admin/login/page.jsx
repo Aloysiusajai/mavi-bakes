@@ -1,16 +1,20 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
   const router = useRouter();
-  const [username, setUsername] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return new URLSearchParams(window.location.search).get("email") || "";
-  });
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    const email = new URLSearchParams(window.location.search).get("email");
+    if (email) {
+      setUsername(email);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

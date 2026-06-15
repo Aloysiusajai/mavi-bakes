@@ -1,15 +1,16 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import PromoModal from "./PromoModal";
 
-const DEFAULT_END_DATE = new Date(
-  Date.now() + 7 * 24 * 60 * 60 * 1000,
-).toISOString();
-
 export default function PromoBanner() {
   const [open, setOpen] = useState(false);
+  const [endDate, setEndDate] = useState("");
+
+  useEffect(() => {
+    // 7 days from now
+    setEndDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString());
+  }, []);
 
   return (
     <>
@@ -32,12 +33,12 @@ export default function PromoBanner() {
             </p>
           </div>
           <div className="ml-4">
-            <a
+            <button
               onClick={() => setOpen(true)}
               className="bg-chocolate text-cream px-4 py-2 rounded-full font-medium hover:bg-gold transition-all"
             >
               Claim
-            </a>
+            </button>
           </div>
         </motion.div>
       </div>
@@ -45,7 +46,7 @@ export default function PromoBanner() {
       <PromoModal
         open={open}
         onClose={() => setOpen(false)}
-        endDate={DEFAULT_END_DATE}
+        endDate={endDate}
       />
     </>
   );

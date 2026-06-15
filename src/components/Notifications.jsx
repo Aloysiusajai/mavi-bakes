@@ -36,8 +36,12 @@ export default function Notifications() {
       // fallback to storage event
       const onStorage = (ev) => {
         if (ev.key === "orders_event" && ev.newValue) {
-          const d = JSON.parse(ev.newValue);
-          handleMessage(new MessageEvent("message", { data: d }));
+          try {
+            const d = JSON.parse(ev.newValue);
+            handleMessage(new MessageEvent("message", { data: d }));
+          } catch (err) {
+            console.error("Failed to parse storage event payload:", err);
+          }
         }
       };
       window.addEventListener("storage", onStorage);
