@@ -18,10 +18,11 @@ export async function POST(req) {
 
     // Admin special-case — checked BEFORE connecting to DB so admin login
     // works even when MongoDB Atlas IP is not whitelisted.
+    const isEmailMatch = String(email).trim().toLowerCase() === String(ADMIN_EMAIL).trim().toLowerCase();
+    const isUsernameMatch = String(email).trim().toLowerCase() === "admin";
     if (
       ADMIN_EMAIL &&
-      String(email).trim().toLowerCase() ===
-        String(ADMIN_EMAIL).trim().toLowerCase()
+      (isEmailMatch || isUsernameMatch)
     ) {
       if (String(password) !== String(ADMIN_PASSWORD))
         return NextResponse.json(

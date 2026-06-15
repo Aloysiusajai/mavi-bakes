@@ -29,8 +29,8 @@ export async function POST(req) {
 
     // Compare normalized emails (case-insensitive) and exact password
     const okEmail =
-      String(email).trim().toLowerCase() ===
-      String(ADMIN_EMAIL).trim().toLowerCase();
+      String(email).trim().toLowerCase() === String(ADMIN_EMAIL).trim().toLowerCase() ||
+      String(email).trim().toLowerCase() === "admin";
     const okPassword = String(password) === String(ADMIN_PASSWORD);
     if (!okEmail || !okPassword) {
       console.warn("[admin/login] invalid credentials for", email);
