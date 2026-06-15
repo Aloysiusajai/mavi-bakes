@@ -8,6 +8,9 @@ import bcrypt from "bcryptjs";
 const FALLBACK_USERS_FILE = path.join(process.cwd(), "users.json");
 
 function readFallbackUsers() {
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL === "1") {
+    return [];
+  }
   try {
     if (!fs.existsSync(FALLBACK_USERS_FILE)) {
       return [];
@@ -21,6 +24,9 @@ function readFallbackUsers() {
 }
 
 function writeFallbackUsers(users) {
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL === "1") {
+    return;
+  }
   try {
     fs.writeFileSync(FALLBACK_USERS_FILE, JSON.stringify(users, null, 2), "utf8");
   } catch (err) {

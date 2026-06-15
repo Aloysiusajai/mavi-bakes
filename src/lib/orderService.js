@@ -8,6 +8,9 @@ const FALLBACK_FILE = path.join(process.cwd(), "orders.json");
 
 // Ensure fallback file exists
 function readFallback() {
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL === "1") {
+    return [];
+  }
   try {
     if (!fs.existsSync(FALLBACK_FILE)) {
       return [];
@@ -21,6 +24,9 @@ function readFallback() {
 }
 
 function writeFallback(orders) {
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL === "1") {
+    return;
+  }
   try {
     fs.writeFileSync(FALLBACK_FILE, JSON.stringify(orders, null, 2), "utf8");
   } catch (err) {
