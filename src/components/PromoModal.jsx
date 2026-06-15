@@ -59,13 +59,12 @@ export default function PromoModal({ open, onClose, endDate }) {
             <p className="text-xl font-bold text-chocolate">{timeLeft}</p>
           </div>
           <div>
-            <Link href="/#order" passHref legacyBehavior>
-              <a
-                onClick={onClose}
-                className="bg-chocolate text-cream px-6 py-3 rounded-full font-bold hover:bg-gold transition-all cursor-pointer"
-              >
-                Order Now
-              </a>
+            <Link
+              href="/#order"
+              onClick={onClose}
+              className="bg-chocolate text-cream px-6 py-3 rounded-full font-bold hover:bg-gold transition-all cursor-pointer inline-block"
+            >
+              Order Now
             </Link>
           </div>
         </div>

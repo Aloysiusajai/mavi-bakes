@@ -129,23 +129,23 @@ export default function Hero() {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <Link href="/#order" passHref legacyBehavior>
-              <motion.a
+            <Link href="/#order" className="inline-block">
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="btn-primary flex items-center gap-2 cursor-pointer"
               >
                 Order Now <ArrowRight size={20} />
-              </motion.a>
+              </motion.div>
             </Link>
-            <Link href="/#collection" passHref legacyBehavior>
-              <motion.a
+            <Link href="/#collection" className="inline-block">
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="btn-secondary flex items-center gap-2 cursor-pointer"
               >
                 <Play size={18} fill="currentColor" /> View Collection
-              </motion.a>
+              </motion.div>
             </Link>
           </div>
 
