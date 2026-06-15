@@ -53,26 +53,7 @@ export default function CartDrawer() {
   const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
 
-    // Verify session authentication
-    try {
-      const authRes = await fetch("/api/auth/me");
-      const auth = await authRes.json();
-      if (!auth.authenticated) {
-        showToast({
-          title: "Session Expired",
-          description: "Please log in to complete your order.",
-          duration: 4000,
-        });
-        setCartOpen(false);
-        router.push("/login");
-        return;
-      }
-    } catch (err) {
-      console.error("Auth check failed in checkout submit", err);
-      setCartOpen(false);
-      router.push("/login");
-      return;
-    }
+
 
     const newErrors = {};
     if (!name.trim()) newErrors.name = "Name is required";
@@ -171,26 +152,8 @@ export default function CartDrawer() {
     }
   };
 
-  const handleProceedToCheckout = async () => {
-    try {
-      const res = await fetch("/api/auth/me");
-      const auth = await res.json();
-      if (!auth.authenticated) {
-        showToast({
-          title: "Login Required",
-          description: "Please log in to proceed to checkout.",
-          duration: 4000,
-        });
-        setCartOpen(false);
-        router.push("/login");
-        return;
-      }
-      setStep("checkout");
-    } catch (err) {
-      console.error("Auth check failed on proceed", err);
-      setCartOpen(false);
-      router.push("/login");
-    }
+  const handleProceedToCheckout = () => {
+    setStep("checkout");
   };
 
   const handleClose = () => {

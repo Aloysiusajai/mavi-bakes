@@ -76,23 +76,6 @@ export default function CustomOrder() {
   const { showToast } = useToast();
 
   const onSubmit = async (data) => {
-    try {
-      const authRes = await fetch("/api/auth/me");
-      const auth = await authRes.json();
-      if (!auth.authenticated) {
-        showToast({
-          title: "Login Required",
-          description: "Please log in to submit a custom order request.",
-          duration: 4000,
-        });
-        router.push("/login");
-        return;
-      }
-    } catch (err) {
-      console.error("Auth check failed in custom order", err);
-      router.push("/login");
-      return;
-    }
 
     const fallbackCreatedAt = new Date().toISOString();
     const tempId = `ord_${fallbackCreatedAt.replace(/\D/g, "")}`;
